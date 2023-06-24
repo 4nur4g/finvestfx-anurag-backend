@@ -53,34 +53,29 @@ const getAllProducts = async (req, res) => {
         {$limit: limit}
     ]);
 
-    res.status(StatusCodes.OK).json({
-        products,
-        nbHits: products.length,
-        page,
-        limit,
-    });
+  res.status(StatusCodes.OK).json({
+    products,
+    nbHits: products.length,
+    page,
+    limit,
+  });
 };
 
 const getProduct = async (req, res) => {
-    const {
-        params: {id: productId},
-    } = req
+  const {
+    params: { id: productId },
+  } = req
 
-    const product = await Product.aggregate([
-        {
-            $match: {
-                id: Number(productId),
-            },
-        },
-    ]);
-
-    if (product.length === 0) {
-        throw new NotFoundError(`No product with id ${productId}`)
-    }
-    res.status(StatusCodes.OK).json({product})
+  const product = await Product.findOne({
+    id: productId,
+  })
+  if (!product) {
+    throw new NotFoundError(`No product with id ${productId}`)
+  }
+  res.status(StatusCodes.OK).json({ product })
 }
 
 module.exports = {
-    getAllProducts,
-    getProduct
+  getAllProducts,
+  getProduct
 };
