@@ -1,4 +1,6 @@
 const Product = require('../models/product');
+const {StatusCodes} = require("http-status-codes");
+const {NotFoundError} = require("../errors");
 
 const getAllProducts = async (req, res) => {
   const { category, name, sort, fields } = req.query;
@@ -34,7 +36,7 @@ const getAllProducts = async (req, res) => {
 
   const products = await result.skip(skip).limit(limit);
 
-  res.status(200).json({
+  res.status(StatusCodes.OK).json({
     products,
     nbHits: products.length,
     page,
@@ -42,6 +44,21 @@ const getAllProducts = async (req, res) => {
   });
 };
 
+const getProduct = async (req, res) => {
+  const {
+    params: { id: productId },
+  } = req
+
+  const product = await Product.findOne({
+    id: productId,
+  })
+  if (!product) {
+    throw new NotFoundError(`No product with id ${productId}`)
+  }
+  res.status(StatusCodes.OK).json({ product })
+}
+
 module.exports = {
   getAllProducts,
+  getProduct
 };
